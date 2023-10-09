@@ -1,6 +1,7 @@
 package sjoquist.mathew.capstone.webcrawler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 // https://github.com/yasserg/crawler4j
@@ -30,8 +31,13 @@ public class BasicCrawler extends WebCrawler {
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 
             // Format webpage data
+            Set<Webpage> pageStubs = new HashSet<Webpage>();
+            for (WebURL link : links) {
+                pageStubs.add(new Webpage(link.getURL()));
+            }
+
             HashMap<String, Integer> termMatrix = getTermMatrix(text);
-            Webpage webpage = new Webpage(url, termMatrix, links.toArray(new String[links.size()]));
+            Webpage webpage = new Webpage(url, termMatrix, pageStubs);
 
             // Send the webpage to kafka
             webpageProducer.send(webpage);
