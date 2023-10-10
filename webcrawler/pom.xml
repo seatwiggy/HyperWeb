@@ -9,11 +9,11 @@
 		<version>3.1.4</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>sjoquist.mathew.capstone</groupId>
+	<groupId>sjoquist.mathew.capstone.webcrawler</groupId>
 	<artifactId>webcrawler</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>webcrawler</name>
-	<description>webcrawler using crawler4j</description>
+	<description>webcrawler with crawler4j</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -21,33 +21,33 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
-		  </dependency>
-		  <dependency>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
-		  </dependency>
-	  
-		  <dependency>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		  </dependency>
-		  <dependency>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
-		  </dependency>
-
-		<!-- https://mvnrepository.com/artifact/edu.uci.ics/crawler4j -->
-		<dependency>
-			<groupId>edu.uci.ics</groupId>
-			<artifactId>crawler4j</artifactId>
-			<version>4.4.0</version>
 		</dependency>
- </dependencies>
+
+		<!-- https://mvnrepository.com/artifact/de.hs-heilbronn.mi/crawler4j-with-hsqldb -->
+		<dependency>
+			<groupId>de.hs-heilbronn.mi</groupId>
+			<artifactId>crawler4j-with-hsqldb</artifactId>
+			<version>5.0.2</version>
+		</dependency>
+	</dependencies>
 
 	<build>
-		<finalName>WebCrawlerService</finalName>
+		<finalName>WebcrawlerService</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

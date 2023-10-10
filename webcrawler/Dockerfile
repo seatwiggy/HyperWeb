@@ -4,5 +4,5 @@ COPY pom.xml /home/app
 RUN mvn -f /home/app/pom.xml clean package
 
 FROM eclipse-temurin:17-jre
-COPY --from=build /home/app/target/WebCrawlerService.jar /WebCrawlerService.jar
-ENTRYPOINT ["java", "-jar", "/WebCrawlerService.jar"]
+COPY --from=build /home/app/target/WebcrawlerService.jar /WebcrawlerService.jar
+ENTRYPOINT ["java", "-jar", "/WebcrawlerService.jar"]
