@@ -4,6 +4,7 @@ import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
+import org.springframework.stereotype.Component;
 import sjoquist.mathew.capstone.webcrawler.kafka.WebpageProducer;
 import sjoquist.mathew.capstone.webcrawler.models.Webpage;
 
@@ -13,13 +14,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
+@Component
 public class MyCrawler extends WebCrawler {
-    @Autowired
-    WebpageProducer producer;
+    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg"
+            + "|png|mp3|mp4|zip|gz))$");
 
-    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz))$");
+    private final WebpageProducer producer;
+
+    public MyCrawler(WebpageProducer producer) {
+        this.producer = producer;
+    }
 
     /**
      * This method receives two parameters. The first parameter is the page
@@ -27,9 +31,7 @@ public class MyCrawler extends WebCrawler {
      * the new url. You should implement this function to specify whether
      * the given url should be crawled or not (based on your crawling logic).
      * In this example, we are instructing the crawler to ignore urls that
-     * have css, js, git, ... extensions and to only accept urls that start
-     * with "https://en.wikipedia.org/". In this case, we didn't need the
-     * referringPage parameter to make the decision.
+     * have css, js, git, ... extensions.
      */
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
@@ -44,33 +46,32 @@ public class MyCrawler extends WebCrawler {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
-        System.out.println("URL: " + url);
 
-        if (page.getParseData() instanceof HtmlParseData) {
-            HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
+        if (page.getParseData() instanceof HtmlParseData htmlParseData) {
             String text = htmlParseData.getText();
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 
             Map<String, Integer> termMatrix = getTermMatrix(text);
-            Set<Webpage> webpages = new HashSet<Webpage>();
-            for (WebURL linkUrl : links) {
-                webpages.add(new Webpage(linkUrl.getURL()));
+
+            Set<Webpage> linksTo = new HashSet<>();
+            for (WebURL link : links) {
+                linksTo.add(new Webpage(link.getURL()));
             }
 
-            producer.send(new Webpage(url, termMatrix, webpages));
+            Webpage webpage = new Webpage(url, termMatrix, linksTo);
+            producer.send(webpage);
         }
     }
 
     /**
-     * Determine whether links found at the given URL should be added to the queue
-     * for crawling.
+     * Determine whether links found at the given URL should be added to the queue for crawling.
      */
     @Override
     protected boolean shouldFollowLinksIn(WebURL url) {
-        return url.toString().toLowerCase().startsWith("https://en.wikipedia.org/wiki");
+        return url.getURL().startsWith("https://en.wikipedia.org/wiki/");
     }
 
-    private static Map<String, Integer> getTermMatrix(String text) {
+    private Map<String, Integer> getTermMatrix(String text) {
         Map<String, Integer> termMatrix = new HashMap<>();
         String[] words = text.split(" ");
         for (String word : words) {
@@ -82,5 +83,4 @@ public class MyCrawler extends WebCrawler {
         }
         return termMatrix;
     }
-
 }

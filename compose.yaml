@@ -8,26 +8,23 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - '9092:9092'
 
   webcrawler:
     build: ./webcrawler
     depends_on:
       - kafka
     environment:
-      - KAFKA_BROKERS=kafka:9092
-      - SERVER_PORT=8080
-    ports:
-      - '8080'
+      - SPRING_KAFKA_PRODUCER_BOOTSTRAPSERVERS=kafka:9092
+
 
   websitepersistence:
     build: ./websitepersistence
     depends_on:
       - kafka
     environment:
-      - KAFKA_BROKERS=kafka:9092
-      - NEO4J_URI=${NEO4J_URI}
-      - NEO4J_USERNAME=neo4j
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - SERVER_PORT=8081
-    ports:
-      - '8081'
+      - SPRING_KAFKA_CONSUMER_BOOTSTRAPSERVERS=kafka:9092
+      - SPRING_NEO4J_URI=$NEO4J_URI
+      - SPRING_NEO4J_USERNAME=neo4j
+      - SPRING_NEO4J_PASSWORD=$NEO4J_PASSWORD
