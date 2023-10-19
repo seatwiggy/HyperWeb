@@ -4,4 +4,9 @@ spring:
       group-id: websitepersistence
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        '[spring.json.type.mapping]': webpage:sjoquist.mathew.capstone.websitepersistence.models.Webpage
+        '[spring.json.trusted.packages]': sjoquist.mathew.capstone.webcrawler.models
+        '[spring.json.value.default.type]': sjoquist.mathew.capstone.websitepersistence.models.Webpage
+        '[spring.json.use.type.headers]': false

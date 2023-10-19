@@ -8,16 +8,13 @@ import org.springframework.stereotype.Component;
 import sjoquist.mathew.capstone.webcrawler.kafka.WebpageProducer;
 import sjoquist.mathew.capstone.webcrawler.models.Webpage;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 @Component
 public class MyCrawler extends WebCrawler {
-    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg"
-            + "|png|mp3|mp4|zip|gz))$");
+    private static final Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp4|zip|gz))$");
 
     private final WebpageProducer producer;
 
@@ -51,36 +48,22 @@ public class MyCrawler extends WebCrawler {
             String text = htmlParseData.getText();
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 
-            Map<String, Integer> termMatrix = getTermMatrix(text);
-
             Set<Webpage> linksTo = new HashSet<>();
             for (WebURL link : links) {
-                linksTo.add(new Webpage(link.getURL()));
+                linksTo.add(new Webpage(link.getURL(), "", null));
             }
 
-            Webpage webpage = new Webpage(url, termMatrix, linksTo);
+            Webpage webpage = new Webpage(url, text, linksTo);
             producer.send(webpage);
         }
     }
 
     /**
-     * Determine whether links found at the given URL should be added to the queue for crawling.
+     * Determine whether links found at the given URL should be added to the queue
+     * for crawling.
      */
     @Override
     protected boolean shouldFollowLinksIn(WebURL url) {
-        return url.getURL().startsWith("https://en.wikipedia.org/wiki/");
-    }
-
-    private Map<String, Integer> getTermMatrix(String text) {
-        Map<String, Integer> termMatrix = new HashMap<>();
-        String[] words = text.split(" ");
-        for (String word : words) {
-            if (termMatrix.containsKey(word)) {
-                termMatrix.put(word, termMatrix.get(word) + 1);
-            } else {
-                termMatrix.put(word, 1);
-            }
-        }
-        return termMatrix;
+        return url.getURL().toLowerCase().startsWith("https://en.wikipedia.org/wiki/");
     }
 }

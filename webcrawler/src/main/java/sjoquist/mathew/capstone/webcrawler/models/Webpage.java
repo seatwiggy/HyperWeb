@@ -1,22 +1,62 @@
 package sjoquist.mathew.capstone.webcrawler.models;
 
-import java.util.Map;
+import java.io.Serializable;
 import java.util.Set;
 
-public class Webpage {
-    public final String url;
-    public final Map<String, Integer> termMatrix;
-    public final Set<Webpage> linksTo;
+public class Webpage implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    public Webpage(String url, Map<String, Integer> termMatrix, Set<Webpage> links) {
-        this.url = url;
-        this.termMatrix = termMatrix;
-        this.linksTo = links;
+    private String url;
+    private String text;
+    private Set<Webpage> linksTo;
+
+    public Webpage() {}
+
+    public Webpage(String url, String text, Set<Webpage> links) {
+        setUrl(url);
+        setText(text);
+        setLinksTo(links);
     }
 
-    public Webpage(String url) {
+    public String getUrl() {
+        return url;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Set<Webpage> getLinksTo() {
+        return linksTo;
+    }
+
+    private void setUrl(String url) {
         this.url = url;
-        this.termMatrix = null;
-        this.linksTo = null;
+    }
+
+    private void setText(String text) {
+        this.text = text;
+    }
+
+    private void setLinksTo(Set<Webpage> linksTo) {
+        this.linksTo = linksTo;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{url: ");
+        sb.append(url);
+        sb.append(", text: \"");
+        sb.append(text);
+        sb.append("\", linksTo: [");
+        if (linksTo != null) {
+            linksTo.forEach(link -> {
+                sb.append(link.getUrl());
+                sb.append(", ");
+            });
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 }

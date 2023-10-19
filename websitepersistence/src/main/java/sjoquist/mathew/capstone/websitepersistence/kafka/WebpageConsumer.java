@@ -1,12 +1,12 @@
 package sjoquist.mathew.capstone.websitepersistence.kafka;
 
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import sjoquist.mathew.capstone.websitepersistence.models.Webpage;
 import sjoquist.mathew.capstone.websitepersistence.repositories.IWebpageRepository;
 
-@Service
+@Component
 public class WebpageConsumer {
     private IWebpageRepository webpageRepository;
 
@@ -14,7 +14,7 @@ public class WebpageConsumer {
         this.webpageRepository = webpageRepository;
     }
 
-    @KafkaListener(topics = "Webpage", groupId = "websitepersistence")
+    @KafkaListener(topics = "webpages", groupId = "websitepersistence")
     public void consume(Webpage message) {
         webpageRepository.save(message);
     }
