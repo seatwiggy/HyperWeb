@@ -3,7 +3,6 @@ package sjoquist.mathew.capstone.websitepersistence.models;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
@@ -21,9 +20,6 @@ public class Webpage implements Serializable {
 
     @Relationship(type = "LINKS_TO", direction = Relationship.Direction.OUTGOING)
     private Set<Webpage> linksTo;
-
-    @Version
-    private Long version;
 
     public Webpage() {}
 
