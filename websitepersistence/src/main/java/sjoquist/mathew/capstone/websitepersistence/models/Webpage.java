@@ -45,11 +45,11 @@ public class Webpage implements Serializable {
         this.url = url;
     }
 
-    private void setText(String text) {
+    public void setText(String text) {
         this.text = text;
     }
 
-    private void setLinksTo(Set<Webpage> linksTo) {
+    public void setLinksTo(Set<Webpage> linksTo) {
         this.linksTo = linksTo;
     }
     
