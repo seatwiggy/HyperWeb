@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sjoquist.mathew.capstone.websiteretrieval.models.Webpage;
 import sjoquist.mathew.capstone.websiteretrieval.repositories.IWebpageRepository;
 
-@RestController
+@RestController("/webpages")
 class WebpageController {
     IWebpageRepository webpageRepository;
 
@@ -17,17 +17,17 @@ class WebpageController {
         this.webpageRepository = webpageRepository;
     }
 
-    @GetMapping("/webpages")
+    @GetMapping
     public ResponseEntity<List<Webpage>> getWebpages() {
         return ResponseEntity.ok().body(webpageRepository.findAll());
     }
 
-    @GetMapping("/webpages/search")
+    @GetMapping("/search")
     public ResponseEntity<List<Webpage>> searchWebpages(String text) {
-        return ResponseEntity.ok().body(webpageRepository.findByTextContainingIgnoreCase(text));
+        return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCase(text));
     }
 
-    @GetMapping("/webpages/search/url")
+    @GetMapping("/search/url")
     public ResponseEntity<List<Webpage>> searchWebpagesByUrl(String url) {
         return ResponseEntity.ok().body(webpageRepository.findByUrlContainingIgnoreCase(url));
     }
