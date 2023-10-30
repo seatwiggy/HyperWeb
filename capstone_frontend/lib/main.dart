@@ -52,6 +52,7 @@ class _SearchPageState extends State<SearchPage> {
         title: const Text("Search Engine"),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -74,15 +75,21 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(searchResults[index]),
-                );
-              },
-            ),
-          ),
+              child: ListView.builder(
+            itemCount: searchResults.length,
+            itemBuilder: (context, index) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Text(searchResults[index])],
+                  )
+                ],
+              );
+            },
+          )),
         ],
       ),
     );

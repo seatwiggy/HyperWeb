@@ -18,7 +18,6 @@ services:
     environment:
       - SPRING_KAFKA_PRODUCER_BOOTSTRAPSERVERS=kafka:9092
 
-
   websitepersistence:
     build: ./websitepersistence
     depends_on:
@@ -31,5 +30,14 @@ services:
 
   websiteretrieval:
     build: ./websiteretrieval
+    ports:
+      - '8081'
     environment:
       - SERVER_PORT=8081
+
+  queryparser:
+    build: ./queryparser
+    ports:
+      - '8082'
+    environment:
+      - SERVER_PORT=8082
