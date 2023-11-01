@@ -10,4 +10,8 @@ public interface IWebpageRepository extends Neo4jRepository<Webpage, String> {
     List<Webpage> findByTextContainingAllIgnoreCase(String... text);
 
     List<Webpage> findByUrlContainingIgnoreCase(String url);
+
+    List<Webpage> findByUrlContainingIgnoreCaseAndTextContainingAllIgnoreCase(String url, String... text);
+
+    // TODO: implement filtering with multiple urls
 }

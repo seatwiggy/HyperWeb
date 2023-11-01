@@ -1,5 +1,7 @@
 package sjoquist.mathew.capstone.queryparser.controllers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,12 +18,15 @@ public class QueryController {
     }
 
     /**
-     * Takes a user provided string and parses it into an endpoint for the website retrieval service
+     * Takes a user provided string and parses it into an endpoint for the website
+     * retrieval service
+     * 
      * @param query The user provided string to parse
      * @return The endpoint to query the search engine with
      */
     public static String parse(String query) {
-        List<String> tokens = Stream.of(query.split("\\s+")).filter(s -> !s.isBlank()).map(String::toLowerCase).toList();
+        List<String> tokens = new ArrayList<>(Arrays.asList(Stream.of(query.split("\\s+")).filter(s -> !s.isBlank())
+                .map(String::toLowerCase).toArray(String[]::new)));
         List<String> specialTokens = tokens.stream().filter(s -> s.startsWith("-") || s.startsWith("url:")).toList();
         tokens.removeAll(specialTokens);
         StringBuilder endpoint = new StringBuilder("/webpages/search?");
@@ -29,10 +34,10 @@ public class QueryController {
         // Add all regular tokens
         endpoint.append("text=");
         for (String token : tokens) {
-            if (token.startsWith(query))
-                endpoint.append(token).append("+");
-            endpoint.deleteCharAt(endpoint.length() - 1);
+            endpoint.append(token).append("+");
         }
+        if (!tokens.isEmpty())
+            endpoint.deleteCharAt(endpoint.length() - 1);
 
         // Add all excluded tokens
         if (specialTokens.stream().anyMatch(s -> s.startsWith("-"))) {
