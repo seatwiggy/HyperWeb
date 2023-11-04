@@ -7,13 +7,13 @@ import java.util.stream.Stream;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("/parse")
 public class QueryController {
-    @GetMapping("/{query}")
-    public ResponseEntity<String> parseQuery(@PathVariable String query) {
+    @GetMapping
+    public ResponseEntity<String> parseQuery(@RequestParam String query) {
         return ResponseEntity.ok().body(parse(query));
     }
 
