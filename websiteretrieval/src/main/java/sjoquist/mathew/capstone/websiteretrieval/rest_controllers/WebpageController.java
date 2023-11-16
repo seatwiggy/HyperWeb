@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import sjoquist.mathew.capstone.websiteretrieval.models.Webpage;
 import sjoquist.mathew.capstone.websiteretrieval.repositories.IWebpageRepository;
 
-@RestController("/webpages")
+@RestController
+@RequestMapping("/webpages")
 class WebpageController {
     IWebpageRepository webpageRepository;
 
@@ -23,12 +26,12 @@ class WebpageController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Webpage>> searchWebpages(String text) {
-        return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCase(text));
+    public ResponseEntity<List<Webpage>> searchWebpages(@RequestParam List<String> text) {
+        return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCaseList(text));
     }
 
     @GetMapping("/search/url")
-    public ResponseEntity<List<Webpage>> searchWebpagesByUrl(String url) {
+    public ResponseEntity<List<Webpage>> searchWebpagesByUrl(@RequestParam String url) {
         return ResponseEntity.ok().body(webpageRepository.findByUrlContainingIgnoreCase(url));
     }
 }

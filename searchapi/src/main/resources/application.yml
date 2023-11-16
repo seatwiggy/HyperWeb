@@ -1,5 +1,7 @@
 eureka:
   client:
+    fetch-registry: true
+    register-with-eureka: true
     serviceUrl:
       defaultZone: 'http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/'
 
@@ -8,4 +10,4 @@ server:
 
 spring:
   application:
-    name: search-api
+    name: SEARCH-API

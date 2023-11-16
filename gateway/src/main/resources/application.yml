@@ -1,11 +1,26 @@
 eureka:
   client:
-    service-url:
+    fetch-registry: true
+    register-with-eureka: false
+    serviceUrl:
       defaultZone: 'http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/'
 
 server:
   port: '${SERVER_PORT:8080}'
-  
+
 spring:
   application:
-    name: gateway-service
+    name: GATEWAY-SERVICE
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      globalcors:
+        add-to-simple-url-handler-mapping: false
+        corsConfigurations:
+          '[/**]':
+            allowedHeaders: '*'
+            allowedMethods:
+              - GET
+            allowedOrigins: '*'

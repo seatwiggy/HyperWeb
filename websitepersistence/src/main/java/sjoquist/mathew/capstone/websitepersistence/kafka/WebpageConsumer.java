@@ -2,6 +2,8 @@ package sjoquist.mathew.capstone.websitepersistence.kafka;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import sjoquist.mathew.capstone.websitepersistence.models.Webpage;
 import sjoquist.mathew.capstone.websitepersistence.repositories.IWebpageRepository;
 
@@ -18,12 +20,13 @@ public class WebpageConsumer {
 	}
 
 	@KafkaListener(topics = "webpages", groupId = "websitepersistence")
+	@Transactional
 	public void consume(Webpage message) {
 		// find the node in the database, if it exists
 		webpageRepository.findById(message.getUrl()).ifPresentOrElse(
 				startNode -> {
 					// if the node exists, update the text and links
-					startNode.setText(message.getText());
+					startNode.setText(cleanText(message.getText()));
 
 					// clear the links to prevent duplicated urls
 					startNode.setLinksTo(new HashSet<>());
@@ -40,11 +43,16 @@ public class WebpageConsumer {
 					Set<String> existingUrls = startNode.getLinksTo().stream().map(Webpage::getUrl)
 							.collect(Collectors.toSet());
 
-					message.getLinksTo().stream().filter(endNode -> !existingUrls.contains(endNode.getUrl())).forEach(endNode -> startNode.getLinksTo().add(endNode));
+					message.getLinksTo().stream().filter(endNode -> !existingUrls.contains(endNode.getUrl()))
+							.forEach(endNode -> startNode.getLinksTo().add(endNode));
 
 					webpageRepository.save(startNode);
 				},
 				// if the node doesn't exist, save the new node
 				() -> webpageRepository.save(message));
+	}
+
+	private static String cleanText(String text) {
+		return text.replaceAll("\\s+", " ");
 	}
 }

@@ -4,11 +4,20 @@ networks:
 
 services:
   eureka:
-    image: springcloud/eureka:latest
+    image: steeltoeoss/eureka-server:latest
     networks:
       - capstone
     ports:
       - '8761:8761'
+
+  frontend:
+    build: ./node_frontend
+    depends_on:
+      - gateway
+    networks:
+      - capstone
+    ports:
+      - '8084:3000'
 
   gateway:
     build: ./gateway
@@ -30,7 +39,7 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-    image: 'bitnami/kafka:latest'    
+    image: 'bitnami/kafka:latest'
     networks:
       - capstone
     ports:
@@ -47,6 +56,18 @@ services:
       - capstone
     ports:
       - '8082'
+
+  search:
+    build: ./searchapi
+    depends_on:
+      - eureka
+    environment:
+      - SERVER_PORT=8083
+      - EUREKA_HOST=eureka
+    networks:
+      - capstone
+    ports:
+      - '8083'
 
   webcrawler:
     build: ./webcrawler
@@ -73,6 +94,8 @@ services:
     depends_on:
       - eureka
     environment:
+      - NEO4J_URI=$NEO4J_URI
+      - NEO4J_PASSWORD=$NEO4J_PASSWORD
       - SERVER_PORT=8081
       - EUREKA_HOST=eureka
     networks:

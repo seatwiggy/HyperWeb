@@ -1,5 +1,7 @@
 eureka:
   client:
+    fetch-registry: false
+    register-with-eureka: true
     serviceUrl:
       defaultZone: 'http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/'
 
@@ -8,4 +10,9 @@ server:
 
 spring:
   application:
-    name: website-retrieval-service
+    name: WEBSITE-RETRIEVAL-SERVICE
+  neo4j:
+    authentication:
+      password: '${NEO4J_PASSWORD:default}'
+      username: neo4j
+    uri: '${NEO4J_URI:bolt://localhost:7687}'

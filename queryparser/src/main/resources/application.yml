@@ -1,6 +1,8 @@
 eureka:
   client:
-    service-url:
+    fetch-registry: false
+    register-with-eureka: true
+    serviceUrl:
       defaultZone: "http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka"
 
 server:
@@ -8,4 +10,4 @@ server:
     
 spring:
   application:
-    name: query-parser-service
+    name: QUERY-PARSER-SERVICE

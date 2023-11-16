@@ -1,18 +1,18 @@
 spring:
   kafka:
     consumer:
-      bootstrap-servers: "${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}"
-      group-id: websitepersistence
       auto-offset-reset: earliest
+      bootstrap-servers: '${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}'
+      group-id: websitepersistence
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        '[spring.json.type.mapping]': webpage:sjoquist.mathew.capstone.websitepersistence.models.Webpage
         '[spring.json.trusted.packages]': sjoquist.mathew.capstone.webcrawler.models
-        '[spring.json.value.default.type]': sjoquist.mathew.capstone.websitepersistence.models.Webpage
+        '[spring.json.type.mapping]': webpage:sjoquist.mathew.capstone.websitepersistence.models.Webpage
         '[spring.json.use.type.headers]': false
+        '[spring.json.value.default.type]': sjoquist.mathew.capstone.websitepersistence.models.Webpage
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
   neo4j:
-    uri: "${NEO4J_URI:bolt://localhost:7687}"
     authentication:
+      password: '${NEO4J_PASSWORD:default}'
       username: neo4j
-      password: "${NEO4J_PASSWORD:default}"
+    uri: '${NEO4J_URI:bolt://localhost:7687}'
