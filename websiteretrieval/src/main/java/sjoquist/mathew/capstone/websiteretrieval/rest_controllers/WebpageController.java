@@ -1,6 +1,7 @@
 package sjoquist.mathew.capstone.websiteretrieval.rest_controllers;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +27,9 @@ class WebpageController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Webpage>> searchWebpages(@RequestParam List<String> text) {
-        return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCaseList(text));
+    public ResponseEntity<List<Webpage>> searchWebpages(@RequestParam String text) {
+        List<String> queryList = Stream.of(text.split("\\+")).map(s -> " " + s + " ").toList();
+        return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCaseList(queryList));
     }
 
     @GetMapping("/search/url")

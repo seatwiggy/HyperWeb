@@ -10,15 +10,6 @@ services:
     ports:
       - '8761:8761'
 
-  frontend:
-    build: ./node_frontend
-    depends_on:
-      - gateway
-    networks:
-      - capstone
-    ports:
-      - '8084:3000'
-
   gateway:
     build: ./gateway
     depends_on:

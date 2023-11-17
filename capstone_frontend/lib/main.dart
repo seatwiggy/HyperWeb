@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tuple/tuple.dart';
 
 void main() {
   runApp(const SearchEngineApp());
@@ -50,7 +51,8 @@ class _SearchPageState extends State<SearchPage> {
         title: const Text("Search Engine"),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -73,30 +75,37 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-              child: ListView.builder(
-            itemCount: searchResults.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => launchUrl(Uri.parse(searchResults[index].url),
-                    webOnlyWindowName: '_blank'),
-                child: Card(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(searchResults[index].url),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                Tuple2<int, int> searchContext = getContext(
+                    searchResults[index].text, _searchController.text);
+                return GestureDetector(
+                  onTap: () => launchUrl(Uri.parse(searchResults[index].url),
+                      webOnlyWindowName: '_blank'),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5,
+                    child: Card(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(searchResults[index].url),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(searchResults[index].text.substring(
+                                searchContext.item1, searchContext.item2)),
+                          )
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child:
-                            Text(searchResults[index].text.substring(0, 100)),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
-          )),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -129,4 +138,30 @@ class Webpage {
       text: json['text'] as String,
     );
   }
+}
+
+Tuple2<int, int> getContext(String text, String query) {
+  Set<String> words =
+      query.split(RegExp(r'\s+')).map((e) => e.toLowerCase()).toSet();
+  int startIndex = text.length;
+  int endIndex = 0;
+  for (String word in words) {
+    if (text.toLowerCase().indexOf(" $word ") < startIndex) {
+      startIndex = text.toLowerCase().indexOf(" $word ");
+    }
+    if (text.toLowerCase().lastIndexOf(" $word ") > endIndex) {
+      endIndex = text.toLowerCase().lastIndexOf(" $word ") + word.length + 1;
+    }
+  }
+
+  if (startIndex - 10 > 0) {
+    startIndex -= 10;
+  } else {
+    startIndex = 0;
+  }
+
+  if (endIndex - startIndex > 100) {
+    endIndex = startIndex + 100;
+  }
+  return Tuple2(startIndex, endIndex);
 }
