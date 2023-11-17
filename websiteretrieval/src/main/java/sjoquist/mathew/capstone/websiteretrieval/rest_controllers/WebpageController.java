@@ -28,7 +28,7 @@ class WebpageController {
 
     @GetMapping("/search")
     public ResponseEntity<List<Webpage>> searchWebpages(@RequestParam String text) {
-        List<String> queryList = Stream.of(text.split("\\+")).map(s -> " " + s + " ").toList();
+        List<String> queryList = Stream.of(text.split("\\s+")).map(s -> " " + s + " ").toList();
         return ResponseEntity.ok().body(webpageRepository.findByTextContainingAllIgnoreCaseList(queryList));
     }
 

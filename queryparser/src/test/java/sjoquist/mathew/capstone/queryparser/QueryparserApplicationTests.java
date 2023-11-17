@@ -18,9 +18,9 @@ class QueryparserApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({
-			"hello world,/webpages/search?text=hello+world,",
-			"hello world url:google.com url:duck.com,/webpages/search?text=hello+world&url=google.com+duck.com,",
-			"hello world -goodbye -later,/webpages/search?text=hello+world&exclude=goodbye+later,"
+			"hello+world,/webpages/search?text=hello+world,",
+			"hello+world+url:google.com+url:duck.com,/webpages/search?text=hello+world&url=google.com+duck.com,",
+			"hello+world+-goodbye+-later,/webpages/search?text=hello+world&exclude=goodbye+later,"
 	})
 	void testQueryParsing(String query, String expected) {
 		String actual = QueryController.parse(query);

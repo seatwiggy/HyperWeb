@@ -25,7 +25,7 @@ public class QueryController {
      * @return The endpoint to query the search engine with
      */
     public static String parse(String query) {
-        List<String> tokens = new ArrayList<>(Arrays.asList(Stream.of(query.split("\\s+")).filter(s -> !s.isBlank())
+        List<String> tokens = new ArrayList<>(Arrays.asList(Stream.of(query.split("\\+")).filter(s -> !s.isBlank())
                 .map(String::toLowerCase).toArray(String[]::new)));
         List<String> specialTokens = tokens.stream().filter(s -> s.startsWith("-") || s.startsWith("url:")).toList();
         tokens.removeAll(specialTokens);

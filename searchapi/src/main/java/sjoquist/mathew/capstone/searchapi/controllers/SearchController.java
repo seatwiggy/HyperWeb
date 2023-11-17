@@ -22,8 +22,17 @@ public class SearchController {
         String searchEndpoint = restTemplate.getForObject("http://QUERY-PARSER-SERVICE/parse?query=" + search,
                 String.class);
 
+        if (searchEndpoint == null || searchEndpoint.isBlank()) {
+            return ResponseEntity.internalServerError().body("Error parsing query");
+        }
+
         // Retrieve the results
-        String result = restTemplate.getForObject("http://WEBSITE-RETRIEVAL-SERVICE" + searchEndpoint, String.class);
+        String result = restTemplate
+                .getForObject("http://WEBSITE-RETRIEVAL-SERVICE" + searchEndpoint.replace(" ", "+"), String.class);
+
+        if ("[]".equals(result)) {
+            return ResponseEntity.noContent().build();
+        }
 
         return ResponseEntity.ok().body(result);
     }
