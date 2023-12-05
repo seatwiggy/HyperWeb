@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:tuple/tuple.dart';
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
+void main() async {
+  await dotenv.load();
   runApp(const SearchEngineApp());
 }
 
@@ -33,10 +35,10 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Webpage> searchResults = [];
+  List<Webpage> searchResults = <Webpage>[];
 
-  void _performSearch(String query) async {
-    List<Webpage>? results = await fetchResults(query);
+  Future<void> _performSearch(String query) async {
+    final List<Webpage>? results = await fetchResults(query);
 
     setState(() {
       searchResults = results!;
@@ -48,12 +50,10 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Search Engine"),
+        title: const Text('HyperWeb'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 16),
             child: FractionallySizedBox(
@@ -62,7 +62,7 @@ class _SearchPageState extends State<SearchPage> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  labelText: "Search",
+                  labelText: 'Search',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () {
@@ -70,7 +70,7 @@ class _SearchPageState extends State<SearchPage> {
                     },
                   ),
                 ),
-                onSubmitted: (value) => _performSearch(value),
+                onSubmitted: (String value) => _performSearch(value),
               ),
             ),
           ),
@@ -78,9 +78,7 @@ class _SearchPageState extends State<SearchPage> {
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                Tuple2<int, int> searchContext = getContext(
-                    searchResults[index].text, _searchController.text);
+              itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   onTap: () => launchUrl(Uri.parse(searchResults[index].url),
                       webOnlyWindowName: '_blank'),
@@ -88,15 +86,25 @@ class _SearchPageState extends State<SearchPage> {
                     widthFactor: 0.5,
                     child: Card(
                       child: Column(
-                        children: [
+                        children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(searchResults[index].url),
+                            child: Text(
+                              searchResults[index].url,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.blue),
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(searchResults[index].text.substring(
-                                searchContext.item1, searchContext.item2)),
+                            child: Text(
+                                getContext(searchResults[index].text,
+                                    _searchController.text),
+                                style: const TextStyle(fontSize: 16)),
                           )
                         ],
                       ),
@@ -113,8 +121,9 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 Future<List<Webpage>?> fetchResults(String query) async {
-  final response = await http
-      .get(Uri.http('localhost:8080', 'SEARCH-API/', {'search': query}));
+  final String gateway = dotenv.env['GATEWAY_HOST']!;
+  final http.Response response = await http.get(
+      Uri.http('$gateway:8081/', 'SEARCH-API/', <String, dynamic>{'search': query}));
 
   if (response.statusCode == 200) {
     final List<dynamic> results = jsonDecode(response.body) as List<dynamic>;
@@ -127,9 +136,6 @@ Future<List<Webpage>?> fetchResults(String query) async {
 }
 
 class Webpage {
-  final String url;
-  final String text;
-
   const Webpage({required this.url, required this.text});
 
   factory Webpage.fromJson(Map<String, dynamic> json) {
@@ -138,30 +144,36 @@ class Webpage {
       text: json['text'] as String,
     );
   }
+
+  final String url;
+  final String text;
 }
 
-Tuple2<int, int> getContext(String text, String query) {
-  Set<String> words =
-      query.split(RegExp(r'\s+')).map((e) => e.toLowerCase()).toSet();
-  int startIndex = text.length;
-  int endIndex = 0;
-  for (String word in words) {
-    if (text.toLowerCase().indexOf(" $word ") < startIndex) {
-      startIndex = text.toLowerCase().indexOf(" $word ");
-    }
-    if (text.toLowerCase().lastIndexOf(" $word ") > endIndex) {
-      endIndex = text.toLowerCase().lastIndexOf(" $word ") + word.length + 1;
-    }
-  }
+String getContext(String text, String query) {
+  final List<String> words =
+      query.split(RegExp(r'\s+')).map((String e) => e.toLowerCase()).toList();
 
-  if (startIndex - 10 > 0) {
-    startIndex -= 10;
+  // Find position of first word
+  String expressionFirst = r'\b';
+  expressionFirst += words.map((String word) => '($word)').join('.*?');
+  expressionFirst += r'\b';
+
+  // Find position of last word
+  String expressionLast = r'\b';
+  expressionLast += words.reversed.map((String word) => '($word)').join('.*?');
+  expressionLast += r'\b';
+
+  final RegExp expFirst = RegExp(expressionFirst, caseSensitive: false);
+  final RegExp expLast = RegExp(expressionLast, caseSensitive: false);
+
+  final Match? matchFirst = expFirst.firstMatch(text);
+  final Match? matchLast = expLast.firstMatch(text);
+
+  if (matchFirst != null &&
+      matchLast != null &&
+      matchFirst.start <= matchLast.start) {
+    return text.substring(matchFirst.start, matchLast.end).trim();
   } else {
-    startIndex = 0;
+    return '';
   }
-
-  if (endIndex - startIndex > 100) {
-    endIndex = startIndex + 100;
-  }
-  return Tuple2(startIndex, endIndex);
 }

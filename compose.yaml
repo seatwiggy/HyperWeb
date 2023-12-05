@@ -10,17 +10,28 @@ services:
     ports:
       - '8761:8761'
 
+  frontend:
+    build: ./capstone_frontend
+    depends_on:
+      - gateway
+    environment:
+      - GATEWAY_HOST=gateway
+    networks:
+      - capstone
+    ports:
+      - '8080:80'
+
   gateway:
     build: ./gateway
     depends_on:
       - search
     environment:
-      - SERVER_PORT=8080
+      - SERVER_PORT=8081
       - EUREKA_HOST=eureka
     networks:
       - capstone
     ports:
-      - '8080:8080'
+      - '8081:8081'
 
   kafka:
     environment:
@@ -41,12 +52,12 @@ services:
     depends_on:
       - eureka
     environment:
-      - SERVER_PORT=8082
+      - SERVER_PORT=8083
       - EUREKA_HOST=eureka
     networks:
       - capstone
     ports:
-      - '8082'
+      - '8083'
 
   search:
     build: ./searchapi
@@ -54,12 +65,12 @@ services:
       - queryparser
       - websiteretrieval
     environment:
-      - SERVER_PORT=8083
+      - SERVER_PORT=8084
       - EUREKA_HOST=eureka
     networks:
       - capstone
     ports:
-      - '8083'
+      - '8084'
 
   webcrawler:
     build: ./webcrawler
@@ -88,9 +99,9 @@ services:
     environment:
       - NEO4J_URI=$NEO4J_URI
       - NEO4J_PASSWORD=$NEO4J_PASSWORD
-      - SERVER_PORT=8081
+      - SERVER_PORT=8082
       - EUREKA_HOST=eureka
     networks:
       - capstone
     ports:
-      - '8081'
+      - '8082'
